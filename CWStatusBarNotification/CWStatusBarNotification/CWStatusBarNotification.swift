@@ -58,6 +58,8 @@ public class CWStatusBarNotification : NSObject {
     public var notificationAnimationOutStyle : CWNotificationAnimationStyle
     public var notificationAnimationType : CWNotificationAnimationType
     public var preferredStatusBarStyle : UIStatusBarStyle
+    public var minNotificationDuration: TimeInterval
+    private var lastNotificationDate: Date
 
     // MARK: - setup
 
@@ -65,7 +67,7 @@ public class CWStatusBarNotification : NSObject {
         if let tintColor = UIApplication.shared.delegate?.window??.tintColor {
             self.notificationLabelBackgroundColor = tintColor
         } else {
-            self.notificationLabelBackgroundColor = UIColor.black
+            self.notificationLabelBackgroundColor = UIColor(red: 0, green: 118/255, blue: 255/255, alpha: 1)
         }
         self.notificationLabelTextColor = UIColor.white
         self.notificationLabelFont = UIFont.systemFont(ofSize: self.fontSize)
@@ -88,6 +90,8 @@ public class CWStatusBarNotification : NSObject {
         self.isCustomView = false
         self.preferredStatusBarStyle = .default
         self.dismissHandle = nil
+        self.minNotificationDuration = 1
+        self.lastNotificationDate = Date(timeIntervalSince1970: 0)
 
         // make swift happy
         self.notificationTappedClosure = {}
@@ -361,7 +365,24 @@ public class CWStatusBarNotification : NSObject {
 
     public func displayNotification(_ message : String,
                                                completion : @escaping () -> ()) {
+        // Replace existing label text
         guard !self.notificationIsShowing else {
+            let timeSinceLastNotification = -lastNotificationDate.timeIntervalSinceNow
+            if timeSinceLastNotification >= minNotificationDuration {
+                lastNotificationDate = Date()
+                notificationLabel?.text = message
+                notificationLabel?.backgroundColor = notificationLabelBackgroundColor
+                notificationLabel?.textColor = notificationLabelTextColor
+                completion()
+            } else {
+                performClosureAfterDelay(minNotificationDuration - timeSinceLastNotification, closure: {
+                    self.lastNotificationDate = Date()
+                    self.notificationLabel?.text = message
+                    self.notificationLabel?.backgroundColor = self.notificationLabelBackgroundColor
+                    self.notificationLabel?.textColor = self.notificationLabelTextColor
+                    completion()
+                })
+            }
             return
         }
         self.isCustomView = false
