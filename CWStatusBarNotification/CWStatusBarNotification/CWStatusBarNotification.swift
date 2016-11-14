@@ -46,7 +46,9 @@ public class CWStatusBarNotification : NSObject {
     public var notificationWindow : CWWindowContainer?
 
     public var notificationLabelBackgroundColor : UIColor
+    public var notificationLabelBackgroundColorDefault = UIColor(red: 0, green: 118/255, blue: 255/255, alpha: 1)
     public var notificationLabelTextColor : UIColor
+    public var notificationLabelTextColorDefault = UIColor.white
     public var notificationLabelFont : UIFont
     public var notificationLabelHeight : CGFloat
     public var customView : UIView?
@@ -67,9 +69,9 @@ public class CWStatusBarNotification : NSObject {
         if let tintColor = UIApplication.shared.delegate?.window??.tintColor {
             self.notificationLabelBackgroundColor = tintColor
         } else {
-            self.notificationLabelBackgroundColor = UIColor(red: 0, green: 118/255, blue: 255/255, alpha: 1)
+            self.notificationLabelBackgroundColor = notificationLabelBackgroundColorDefault
         }
-        self.notificationLabelTextColor = UIColor.white
+        self.notificationLabelTextColor = notificationLabelTextColorDefault
         self.notificationLabelFont = UIFont.systemFont(ofSize: self.fontSize)
         self.notificationLabelHeight = 0.0
         self.customView = nil
@@ -375,11 +377,14 @@ public class CWStatusBarNotification : NSObject {
                 notificationLabel?.textColor = notificationLabelTextColor
                 completion()
             } else {
+                // Use colors specified at that time
+                let notificationLabelBackgroundColor = self.notificationLabelBackgroundColor
+                let notificationLabelTextColor = self.notificationLabelTextColor
                 performClosureAfterDelay(minNotificationDuration - timeSinceLastNotification, closure: {
                     self.lastNotificationDate = Date()
                     self.notificationLabel?.text = message
-                    self.notificationLabel?.backgroundColor = self.notificationLabelBackgroundColor
-                    self.notificationLabel?.textColor = self.notificationLabelTextColor
+                    self.notificationLabel?.backgroundColor = notificationLabelBackgroundColor
+                    self.notificationLabel?.textColor = notificationLabelTextColor
                     completion()
                 })
             }
