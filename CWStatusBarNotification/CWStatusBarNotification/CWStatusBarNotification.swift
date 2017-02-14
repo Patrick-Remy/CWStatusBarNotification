@@ -380,7 +380,7 @@ public class CWStatusBarNotification : NSObject {
                 // Use colors specified at that time
                 let notificationLabelBackgroundColor = self.notificationLabelBackgroundColor
                 let notificationLabelTextColor = self.notificationLabelTextColor
-                performClosureAfterDelay(minNotificationDuration - timeSinceLastNotification, closure: {
+                _ = performClosureAfterDelay(minNotificationDuration - timeSinceLastNotification, closure: {
                     self.lastNotificationDate = Date()
                     self.notificationLabel?.text = message
                     self.notificationLabel?.backgroundColor = notificationLabelBackgroundColor
